@@ -19,12 +19,14 @@ public class LevelManager : MonoBehaviour
 
 	[Header("GUI - Misc")]
 	public GameObject StatsGUI;
+	public GameObject BloodGUI;
 
 	[Header("GamePlay")]
 	public float DayRoundLength = 10;
 	public float NightRoundLength = 5;
 	public float RoundLength;
 	public ZooManager Zoo;
+	public GameObject GameAudioManager;
 
 	[Header("Statistics")]
 	private int StatRounds = 0;
@@ -57,7 +59,10 @@ public class LevelManager : MonoBehaviour
 		// Define the day round length
 		RoundLength = DayRoundLength;
 
-	    Zoo = GetComponent<ZooManager>();
+	    // Zoo = GetComponent<ZooManager>();
+
+		// Play rooster
+		GameAudioManager.GetComponent<AudioManager>().PlayDayAlert();
 	}
 
 	void Update ()
@@ -86,7 +91,7 @@ public class LevelManager : MonoBehaviour
 		// Testing
 		if(Input.GetKeyDown(KeyCode.Return))
 		{
-			SetStats();
+			Instantiate(BloodGUI);
 		}
 	}
 
@@ -113,11 +118,11 @@ public class LevelManager : MonoBehaviour
 			DayLength = NightRoundLength;
 
 		// Update the bar
-		Vector2 Size = new Vector2 (25, 200 - (200 * (CurrentTime / DayLength)));
+		Vector2 Size = new Vector2 (200 - (200 * (CurrentTime / DayLength)), 25);
 		BarGUI.GetComponent<Image> ().rectTransform.sizeDelta = Size;
 
         // update the clues
-        DisplayClues();
+        // DisplayClues();
 	}
 
 	private void SwitchMode()
@@ -133,6 +138,9 @@ public class LevelManager : MonoBehaviour
 
 			// Define the night round length
 			RoundLength = NightRoundLength;
+			
+			// Play rooster
+			GameAudioManager.GetComponent<AudioManager>().PlayNightAmbience();
 		}
 		else
 		{
@@ -144,6 +152,9 @@ public class LevelManager : MonoBehaviour
 
 			// Define the night round length
 			RoundLength = DayRoundLength;
+
+			// Play rooster
+			GameAudioManager.GetComponent<AudioManager>().PlayDayAlert();
 
 			// Increase stats
 			StatRounds++;
