@@ -8,6 +8,7 @@ public static class Extensions {
 	public static Random RandomGenerator 
 	{ 
 		get { return _randomGenerator; }
+        set { _randomGenerator = value; }
 	}
 	
 	public static void Shuffle<T>(this IList<T> list)  

@@ -48,7 +48,7 @@ public class ZooManager : MonoBehaviour
 	{
 		zoo.Shuffle();	
 
-		IList<string> nightCopy = new List<string>(Resources.NightActivities);
+		IList<string> nightCopy = new List<string>(Resources.TwoPersonNightActivities);
 		nightCopy.Shuffle();
 		
 		IList<string> activities = new List<string>();	
