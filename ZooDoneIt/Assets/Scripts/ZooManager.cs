@@ -5,73 +5,108 @@ using System.Collections.Generic;
 
 public class ZooManager : MonoBehaviour
 {
-	private static Random _randomGenerator = new Random();  
+	public List<Animal> Crowd;
+
+	[Range(3,10)]
+	// How many people can we have in a crowd
+	public int NumberInCrowd = 5;
+
+	// How many killers can we have in a crowd
+	public int MaxNumberOfKillers = 3;
+
+	// Counter for maximum number of killers
+	private int NumberOfKillers = 0;
 
 	void Start ()
 	{
-		_randomGenerator = new System.Random();
+		// Creat the array to store the crowd
+		Crowd = new List<Animal> ();
+
+		// Create our starting crowd
+		GenerateCrowd ();
+	}
+
+	void Update()
+	{
 	}
 
 	public void GenerateCrowd()
 	{
+		// Generate our crowd
+		for(int i = 0; i < NumberInCrowd; i++)
+		{
+			AddCrowdMember();
+		}
+
+		// Pick the killer
+		ChooseKiller ();
+
+		OutputListToDebug ();
 	}
 
-	private void ChooseKiller()
+	public IList<string> GetNightActivityText(string killer, IList<string> zoo)
 	{
-	}
+		zoo.Shuffle();	
 
-	private IList<string> GetNightActivityText(string killer, IList<string> zoo)
-	{
-		IList<string> activities = new List<string>();		
-		Shuffle<string>(zoo);
-		IList<string> nightCopy = new List<string>(Resources.nightActivities);
-		Shuffle<string>(nightCopy);
+		IList<string> nightCopy = new List<string>(Resources.NightActivities);
+		nightCopy.Shuffle();
 		
+		IList<string> activities = new List<string>();	
 		for(int i=0; i<zoo.Count-1; i++)
 		{
-			
-			activities.Add(String.Format(nightCopy[i]), zoo[i], zoo[i+1]);
+			activities.Add(String.Format(nightCopy[i], zoo[i], zoo[i+1]));
 		}
 		activities.Add(String.Format(nightCopy[zoo.Count], zoo[zoo.Count-1], zoo[0]));
+		
+		return activities;
 	}
 
-	public static void Shuffle<T>(this IList<T> list)  
-	{  
-		int n = list.Count;  
-		while (n > 1) 
-		{  
-			n--;  
-			int k = _randomGenerator.Next(n + 1);  
-			T value = list[k];  
-			list[k] = list[n];  
-			list[n] = value;  
-		}  
-	}
-}
-
-internal static class Resources 
-{
-	internal static IList<string> NightActivities
+	public void ChooseKiller()
 	{
-		get 
+		int Index;
+		while (NumberOfKillers < MaxNumberOfKillers)
 		{
-			return 	new List<string>
+			// Pick one at random
+			Index = UnityEngine.Random.Range (0, NumberInCrowd);
+			
+			// Check if the selected one is a killer already
+			if(Crowd[Index].GetKiller())
 			{
-				"{0} was out dancing with {1}",
-				"{0} baked a cake with {1}",
-				"{0} was sleeping with {1}'s wife",
-				"{0} went to Nando's with [1}",
-				"{0} went for a long walk with {1}",
-				"{0} and {1} were at a Rush Hour marathon",
-				"{0} and {1} had a pinterest craft party",
-				"{0} and {1} played trivial pursuit",
-				"{0} and {1} had an iron chef night",
-				"{0} and {1} went to open mic night",
-				"{0} had a pinball tournament with {1}",
-				"{0} watched {1} without them realising",
-				"{0} and {1} binge watched youtube cat videos together",
-			};
+				return;
+			}
+			else
+			{
+				// Flag it is the killer
+				Crowd [Index].SetKiller ();
+				NumberOfKillers++;
+				
+				break;
+			}
 		}
 	}
 	
+	// Just for Debugging
+	private void OutputListToDebug()
+	{
+		int i = 1;
+		foreach(Animal animal in Crowd)
+		{
+			if(animal.GetKiller())
+			{
+				Debug.Log (i + " : " + animal.GetAnimalType().ToString() + " - KILLER\n");
+			}
+			else
+			{
+				Debug.Log (i + " : " + animal.GetAnimalType().ToString() + " - INNOCENT\n");
+			}
+			i++;
+		}
+	}
+
+	private void AddCrowdMember()
+	{
+		int RandomType = UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(Animal.ANIMAL_TYPE)).Length);
+		
+		Crowd.Add (new Animal((Animal.ANIMAL_TYPE)RandomType));
+	}
 }
