@@ -81,6 +81,17 @@ namespace UnityVS.ZooDoneIt.CSharpTests.Assets.Scripts
             Assert.IsFalse(clues1.SequenceEqual(clues2));
         }
 
+        [TestMethod]
+        public void KillerNotInZooGetsEmptyList()
+        {
+            var manager = new SubClueManager();
+            var rng = Extensions.RandomGenerator = new Random(1);
+            IList<string> zoo = new List<string> { "wrench", "killer", "abstract" };
+
+            var clues = manager.GetDayActivity(zoo, "albacore");
+            Assert.AreEqual(0, clues.Count);
+        }
+
         public class SubClueManager : ClueManager
         {
             public string GetVictimName(IList<string> zoo, string killer)
