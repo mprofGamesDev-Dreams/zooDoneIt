@@ -18,9 +18,13 @@ namespace Assets.Scripts
         /// <returns>the night activity text</returns>
         public IList<string> GetNightActivity(IList<string> zoo, string killer)
         {
+            if (!zoo.Contains(killer))
+            {
+                return new List<string>();
+            }
+
             zoo.Shuffle();
             Victim = GetVictim(zoo, killer);
-
 
             IList<string> nightCopy = new List<string>(GameResources.TwoPersonNightActivities);
             nightCopy.Shuffle();
@@ -38,7 +42,12 @@ namespace Assets.Scripts
 
         public IList<string> GetDayActivity(IList<string> zoo, string killer)
         {
-			var herring = new List<string>(GameResources.Herrings);
+            if (!zoo.Contains(killer))
+            {
+                return new List<string>();
+            }
+
+            var herring = new List<string>(GameResources.Herrings);
 			var goodTraits = new List<string>(GameResources.GoodTraits);
 			var badTraits = new List<string>(GameResources.BadTraits);
             herring.Shuffle();
