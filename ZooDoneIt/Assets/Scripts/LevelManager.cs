@@ -14,11 +14,20 @@ public class LevelManager : MonoBehaviour
 	[Header("GUI - Text")]
 	public GameObject TextGUI;
 
+	[Header("GUI - Misc")]
+	public GameObject StatsGUI;
+
 	[Header("GamePlay")]
 	public float DayRoundLength = 10;
 	public float NightRoundLength = 5;
 	public float RoundLength;
 	public GameObject Zoo;
+
+	[Header("Statistics")]
+	private int StatRounds = 0;
+	private int StatVictims = 0;
+	private int StatMurderers = 0;
+	private int StatGuesses = 0;
 
 	// Round Length
 	private float CurrentTime = 0;
@@ -31,6 +40,11 @@ public class LevelManager : MonoBehaviour
 
 	// How many killers are in the level
 	private int NumberOfKillers;
+
+	// Accessor for the stats screen
+	private GameObject StatsScreen = null;
+
+	private bool IsGameOver = false;
 
 	void Start ()
 	{
@@ -46,6 +60,12 @@ public class LevelManager : MonoBehaviour
 
 	void Update ()
 	{
+		// Check if its gameover
+		if(IsGameOver)
+		{
+			return;
+		}
+
 		// Elapsed time since round began
 		CurrentTime = Time.timeSinceLevelLoad - LastRoundSwitchTime;
 
@@ -60,6 +80,12 @@ public class LevelManager : MonoBehaviour
 
 		// Check if the game has met the game over requirements
 		CheckGameOver ();
+
+		// Testing
+		if(Input.GetKeyDown(KeyCode.Return))
+		{
+			SetStats();
+		}
 	}
 
 	private void UpdateGUI()
@@ -95,6 +121,10 @@ public class LevelManager : MonoBehaviour
 
 			// Define the night round length
 			RoundLength = DayRoundLength;
+
+			// Increase stats
+			StatRounds++;
+			StatVictims++;
 		}
 
 		// Store current time we are on
@@ -111,5 +141,25 @@ public class LevelManager : MonoBehaviour
 		{
 			// No killers in crowd
 		}
+	}
+
+	private void SetStats()
+	{
+		if (StatsScreen)
+			return;
+
+		IsGameOver = true;
+		
+		// Create the stats screen
+		StatsScreen = (GameObject)Instantiate(StatsGUI);
+
+		// Find the stats screen text
+		Text StatsText = StatsScreen.transform.Find ("Canvas").Find("Text").gameObject.GetComponent<Text>();
+
+		// Set the text
+		StatsText.text = "Rounds : " + StatRounds + "\n" +
+						"Victims : " + StatVictims + "\n" +
+						"Murderers : " + StatMurderers + "\n" +
+						"Correct Guesses : " + StatGuesses + "\n";
 	}
 }
