@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-internal static class Resources 
+internal static class GameResources 
 {
 	internal static IList<string> TwoPersonNightActivities
 	{
