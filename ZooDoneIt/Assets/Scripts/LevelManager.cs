@@ -98,7 +98,12 @@ public class LevelManager : MonoBehaviour
     private void DisplayClues()
     {
         bool isDay = CurrentMode == TIMEMODE.DAY;
-        var clues = Zoo.GetClues(isDay);
+		if(isDay)
+		{
+			Zoo.RemoveVictim();	// we still have the victim from last night
+		}
+
+		var clues = Zoo.GetClues(isDay);
 
         // Set the text for UI
         string clueList = clues.Aggregate((i, j) => i + "\n" + j);

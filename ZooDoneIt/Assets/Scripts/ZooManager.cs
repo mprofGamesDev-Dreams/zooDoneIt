@@ -126,4 +126,14 @@ public class ZooManager : MonoBehaviour
             ? clueManager.GetNightActivity(CrowdStr.ToList(), KillerName)
             : clueManager.GetDayActivity(CrowdStr.ToList(), KillerName);
     }
+
+	public void RemoveVictim()
+	{
+		string victim = clueManager.Victim;
+		int index = CrowdStr.ToList ().IndexOf (victim);
+		var tempStrList = CrowdStr.ToList();
+		tempStrList.RemoveAt (index);
+		CrowdStr = tempStrList.ToArray();
+		CrowdObj = CrowdObj.ToList ();
+	}
 }
