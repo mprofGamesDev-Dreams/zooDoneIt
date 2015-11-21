@@ -19,14 +19,15 @@ public class Animal : MonoBehaviour
 
 	[Header("Animal Information")]
 	[SerializeField]private bool IsKiller;
-	[SerializeField]private bool IsDead;
 	[SerializeField]private ANIMAL_TYPE AnimalType;
 
 	// Accessor for spritesheet
 	private Sprite[] Sprites;
 
-	// ID for sprites
+	// Testing only - REMOVE LATER
 	private const int MURDER_SPRITE_ID = 30;
+
+	// ID for sprites
 	private const int DEAD_SPRITE_ID = 31;
 	
 	public void SetAnimal(ANIMAL_TYPE type)
@@ -43,18 +44,12 @@ public class Animal : MonoBehaviour
 	
 	public void SetVictim()
 	{
-		// Flag is dead
-		IsDead = true;
-		
 		// Update the image
 		ImageObj.GetComponent<Image> ().sprite = Sprites[DEAD_SPRITE_ID];
 	}
 
 	public void SetKiller()
 	{
-		// Flag is the killer
-		IsKiller = true;
-
 		// Debugging purposes - REMOVE LATER
 		ImageObj.GetComponent<Image> ().sprite = Sprites[MURDER_SPRITE_ID];
 	}
@@ -69,16 +64,5 @@ public class Animal : MonoBehaviour
 
 		// Update GUI Image
 		ImageObj.GetComponent<Image> ().sprite = Sprites[(int)AnimalType];
-	}
-
-	
-	public bool GetKiller()
-	{
-		return IsKiller;
-	}
-	
-	public ANIMAL_TYPE GetAnimalType()
-	{
-		return AnimalType;
 	}
 }

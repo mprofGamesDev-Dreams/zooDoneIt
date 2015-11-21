@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ZooManager : MonoBehaviour
 {
@@ -9,7 +10,8 @@ public class ZooManager : MonoBehaviour
 
 	// Just a blank gameobject to tidy up heirarchy
 	public GameObject CrowdManager;
-	public List<GameObject> Crowd;
+	public List<GameObject> CrowdObj;
+	public IEnumerable<string> CrowdStr;
 
 	[Header("GamePlay")]
 
@@ -30,18 +32,31 @@ public class ZooManager : MonoBehaviour
 	// Counter for maximum number of killers
 	private int NumberOfKillers = 0;
 
+	// Names
+	private string KillerName;
+	private string VictimName;
 
-	public void GenerateCrowd()
+	void Start()
 	{
+		// Creat the array to store the crowd
+		CrowdObj = new List<GameObject> ();
+		
 		int x = 0;
 		int y = 0;
 		int index = 0;
 		
-		// Generate our crowd
+		// Generate our crowd gameobjects
 		while(index < NumberInCrowd)
 		{
-			AddCrowdMember(x,y);
-
+			// Calculate the offset to the first crowd member
+			Vector2 GridPosition = new Vector2 (x * SpriteSeperation, -y * SpriteSeperation);
+			
+			// Create the object
+			GameObject CrowdMember = (GameObject)Instantiate (AnimalPrefab, FirstCrowdMemberStartPosition + GridPosition, new Quaternion ()) as GameObject;
+			CrowdMember.transform.parent = CrowdManager.transform;
+			CrowdObj.Add (CrowdMember);
+			
+			// Move to next member
 			x++;
 			index++;
 			
@@ -52,80 +67,49 @@ public class ZooManager : MonoBehaviour
 			}
 		}
 
-		// Pick the killer
-		ChooseKiller ();
-
-		// Pick the victim
-		ChooseVictim ();
-
-		// THIS IS WHERE WE SHOULD GENERATE MEMBER TRAITS
+		GenerateCrowd ();
 	}
 
-	public void ChooseKiller()
+	public void GenerateCrowd()
 	{
-		// Check if we have too many killers
-		if (NumberOfKillers >= MaxNumberOfKillers)
-			return;
+		// Get a list of animal types
+		IList<string> Animals = Enum.GetNames(typeof(Animal.ANIMAL_TYPE));
 
+		// Shuffle them
+		Animals.Shuffle ();
 
-		int Index;
-		while (true)
+		// Take the first
+		CrowdStr = Animals.Take (NumberInCrowd);
+
+		// Update the objects
+		for(int i = 0; i < NumberInCrowd; i++)
 		{
-			// Pick one at random
-			Index = UnityEngine.Random.Range (0, NumberInCrowd);
-			
-			// Check if the selected one is a killer already
-			if(!Crowd[Index].GetComponent<Animal>().GetKiller())
-			{
-				// Flag it is the killer
-				Crowd [Index].GetComponent<Animal>().SetKiller ();
-
-				// Increase our counter
-				NumberOfKillers++;
-				break;
-			}
+			SetCrowdMember(i, CrowdStr.ToArray()[i]);
 		}
+
+		// Get the killer name
+		KillerName = CrowdStr.ToArray () [0];
+		CrowdObj [0].GetComponent<Animal> ().SetKiller ();
+
+		// Get the victim name
+		SetVictim (1);
 	}
 
-	public void ChooseVictim()
+	private void SetVictim(int Index)
 	{
-		int Index;
-		while (true)
-		{
-			// Pick one at random
-			Index = UnityEngine.Random.Range (0, NumberInCrowd);
+		// Get the name of the victim
+		VictimName = CrowdStr.ToArray () [Index];
 
-			// Check if the selected one is a killer i.e. cant be victim
-			if(!Crowd[Index].GetComponent<Animal>().GetKiller())
-			{
-				// Flag the crowd member is a victim
-				Crowd[Index].GetComponent<Animal>().SetVictim();				
-				break;
-			}
-		}
+		// Update the object
+		CrowdObj [Index].GetComponent<Animal> ().SetVictim ();
 	}
 
-	private void AddCrowdMember(int x, int y)
+	private void SetCrowdMember(int index, string type)
 	{
-		// Make sure we have a crowd array to add to
-		if(Crowd == null)
-		{
-			// Creat the array to store the crowd
-			Crowd = new List<GameObject> ();
-		}
+		// Convert to enum
+		Animal.ANIMAL_TYPE animalType = (Animal.ANIMAL_TYPE) Enum.Parse(typeof(Animal.ANIMAL_TYPE), type);  
 
-		// Generate a random type of animal
-		int RandomType = UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(Animal.ANIMAL_TYPE)).Length);
-
-		// Calculate the offset to the first crowd member
-		Vector2 GridPosition = new Vector2 (x* SpriteSeperation, -y * SpriteSeperation);
-
-		// Create the object
-		GameObject CrowdMember = (GameObject)Instantiate (AnimalPrefab, FirstCrowdMemberStartPosition + GridPosition, new Quaternion ()) as GameObject;
-		CrowdMember.GetComponent<Animal> ().SetAnimal ((Animal.ANIMAL_TYPE)RandomType);
-		CrowdMember.transform.parent = CrowdManager.transform;
-
-		// Add to the list
-		Crowd.Add (CrowdMember);
+		// Set the type of the animal
+		CrowdObj[index].GetComponent<Animal> ().SetAnimal (animalType);
 	}
 }

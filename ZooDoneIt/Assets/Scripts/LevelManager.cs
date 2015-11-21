@@ -11,8 +11,9 @@ public class LevelManager : MonoBehaviour
 	public Sprite DayBackground;
 	public Sprite NightBackground;
 
-	[Header("GUI - Text")]
+	[Header("GUI - Timer")]
 	public GameObject TextGUI;
+	public GameObject BarGUI;
 
 	[Header("GUI - Misc")]
 	public GameObject StatsGUI;
@@ -50,10 +51,7 @@ public class LevelManager : MonoBehaviour
 	{
 		// Store current time
 		LastRoundSwitchTime = Time.timeSinceLevelLoad;
-
-		// Create our initial crowd
-		Zoo.GetComponent<ZooManager>().GenerateCrowd();
-
+	
 		// Define the day round length
 		RoundLength = DayRoundLength;
 	}
@@ -92,6 +90,16 @@ public class LevelManager : MonoBehaviour
 	{
 		// Display how long is left on the 
 		TextGUI.GetComponent<Text> ().text = "Time Left : " + (int)(RoundLength - CurrentTime);
+
+		float DayLength;
+		if (CurrentMode == TIMEMODE.DAY)
+			DayLength = DayRoundLength;
+		else
+			DayLength = NightRoundLength;
+
+		// Update the bar
+		Vector2 Size = new Vector2 (25, 200 - (200 * (CurrentTime / DayLength)));
+		BarGUI.GetComponent<Image> ().rectTransform.sizeDelta = Size;
 	}
 
 	private void SwitchMode()
@@ -115,9 +123,6 @@ public class LevelManager : MonoBehaviour
 			
 			// Set GameBackground to NightImage
 			BackgroundGUI.GetComponent<Image>().sprite = DayBackground;
-
-			// Select a new killer
-			Zoo.GetComponent<ZooManager>().ChooseVictim();
 
 			// Define the night round length
 			RoundLength = DayRoundLength;
