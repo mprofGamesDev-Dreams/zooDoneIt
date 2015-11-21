@@ -47,7 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Animal.cs" />
+     <Compile Include="Assets\Scripts\ClueManager.cs" />
+     <Compile Include="Assets\Scripts\Extensions.cs" />
+     <Compile Include="Assets\Scripts\GameResources.cs" />
      <Compile Include="Assets\Scripts\LevelManager.cs" />
+     <Compile Include="Assets\Scripts\UserInput.cs" />
      <Compile Include="Assets\Scripts\ZooManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

@@ -22,7 +22,7 @@ namespace Assets.Scripts
             Victim = GetVictim(zoo, killer);
 
 
-            IList<string> nightCopy = new List<string>(Resources.TwoPersonNightActivities);
+            IList<string> nightCopy = new List<string>(GameResources.TwoPersonNightActivities);
             nightCopy.Shuffle();
 
             IList<string> activities = new List<string>();
@@ -38,9 +38,9 @@ namespace Assets.Scripts
 
         public IList<string> GetDayActivity(IList<string> zoo, string killer)
         {
-            var herring = new List<string>(Resources.Herrings);
-            var goodTraits = new List<string>(Resources.GoodTraits);
-            var badTraits = new List<string>(Resources.BadTraits);
+			var herring = new List<string>(GameResources.Herrings);
+			var goodTraits = new List<string>(GameResources.GoodTraits);
+			var badTraits = new List<string>(GameResources.BadTraits);
             herring.Shuffle();
             goodTraits.Shuffle();
             badTraits.Shuffle();

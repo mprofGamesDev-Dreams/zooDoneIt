@@ -5,91 +5,127 @@ using System.Collections.Generic;
 
 public class ZooManager : MonoBehaviour
 {
-	public List<Animal> Crowd;
+	[Header("Current Crowd")]
 
-	[Range(3,10)]
+	// Just a blank gameobject to tidy up heirarchy
+	public GameObject CrowdManager;
+	public List<GameObject> Crowd;
+
+	[Header("GamePlay")]
+
 	// How many people can we have in a crowd
+	[Range(3,10)]
 	public int NumberInCrowd = 5;
 
 	// How many killers can we have in a crowd
 	public int MaxNumberOfKillers = 3;
 
+	[Header("GUI Controls")]
+	public GameObject AnimalPrefab;
+	public Vector2 FirstCrowdMemberStartPosition;
+	public int CrowdMemberPerRow = 5;
+	public int NumberOfRows = 5;
+	public int SpriteSeperation = 512;
+
 	// Counter for maximum number of killers
 	private int NumberOfKillers = 0;
 
-	void Start ()
-	{
-		// Creat the array to store the crowd
-		Crowd = new List<Animal> ();
-
-		// Create our starting crowd
-		GenerateCrowd ();
-	}
-
-	void Update()
-	{
-	}
 
 	public void GenerateCrowd()
 	{
+		int x = 0;
+		int y = 0;
+		int index = 0;
+		
 		// Generate our crowd
-		for(int i = 0; i < NumberInCrowd; i++)
+		while(index < NumberInCrowd)
 		{
-			AddCrowdMember();
+			AddCrowdMember(x,y);
+
+			x++;
+			index++;
+			
+			if(index == CrowdMemberPerRow)
+			{
+				x = 0;
+				y++;
+			}
 		}
 
 		// Pick the killer
 		ChooseKiller ();
 
-		OutputListToDebug ();
+		// Pick the victim
+		ChooseVictim ();
+
+		// THIS IS WHERE WE SHOULD GENERATE MEMBER TRAITS
 	}
 
 	public void ChooseKiller()
 	{
+		// Check if we have too many killers
+		if (NumberOfKillers >= MaxNumberOfKillers)
+			return;
+
+
 		int Index;
-		while (NumberOfKillers < MaxNumberOfKillers)
+		while (true)
 		{
 			// Pick one at random
 			Index = UnityEngine.Random.Range (0, NumberInCrowd);
 			
 			// Check if the selected one is a killer already
-			if(Crowd[Index].GetKiller())
-			{
-				return;
-			}
-			else
+			if(!Crowd[Index].GetComponent<Animal>().GetKiller())
 			{
 				// Flag it is the killer
-				Crowd [Index].SetKiller ();
+				Crowd [Index].GetComponent<Animal>().SetKiller ();
+
+				// Increase our counter
 				NumberOfKillers++;
-				
 				break;
 			}
 		}
 	}
-	
-	// Just for Debugging
-	private void OutputListToDebug()
+
+	public void ChooseVictim()
 	{
-		int i = 1;
-		foreach(Animal animal in Crowd)
+		int Index;
+		while (true)
 		{
-			if(animal.GetKiller())
+			// Pick one at random
+			Index = UnityEngine.Random.Range (0, NumberInCrowd);
+
+			// Check if the selected one is a killer i.e. cant be victim
+			if(!Crowd[Index].GetComponent<Animal>().GetKiller())
 			{
-				Debug.Log (i + " : " + animal.GetAnimalType().ToString() + " - KILLER\n");
+				// Flag the crowd member is a victim
+				Crowd[Index].GetComponent<Animal>().SetVictim();				
+				break;
 			}
-			else
-			{
-				Debug.Log (i + " : " + animal.GetAnimalType().ToString() + " - INNOCENT\n");
-			}
-			i++;
 		}
 	}
 
-	private void AddCrowdMember()
+	private void AddCrowdMember(int x, int y)
 	{
+		// Make sure we have a crowd array to add to
+		if(Crowd == null)
+		{
+			// Creat the array to store the crowd
+			Crowd = new List<GameObject> ();
+		}
+
+		// Generate a random type of animal
 		int RandomType = UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(Animal.ANIMAL_TYPE)).Length);
-		
-		Crowd.Add (new Animal((Animal.ANIMAL_TYPE)RandomType));
+
+		// Calculate the offset to the first crowd member
+		Vector2 GridPosition = new Vector2 (x* SpriteSeperation, -y * SpriteSeperation);
+
+		// Create the object
+		GameObject CrowdMember = (GameObject)Instantiate (AnimalPrefab, FirstCrowdMemberStartPosition + GridPosition, new Quaternion ()) as GameObject;
+		CrowdMember.GetComponent<Animal> ().SetAnimal ((Animal.ANIMAL_TYPE)RandomType);
+		CrowdMember.transform.parent = CrowdManager.transform;
+
+		// Add to the list
+		Crowd.Add (CrowdMember);
 	}
 }

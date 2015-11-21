@@ -6,50 +6,66 @@ public class LevelManager : MonoBehaviour
 {
 	enum TIMEMODE { DAY, NIGHT };
 
-	[Header("GUI")]
+	[Header("GUI - Background")]
 	public GameObject BackgroundGUI;
-
 	public Sprite DayBackground;
 	public Sprite NightBackground;
 
-	[Header("GamePlay")]
-	// How long the round lasts
-	public float RoundLength = 10;
+	[Header("GUI - Text")]
+	public GameObject TextGUI;
 
-	// Access to the zoo
+	[Header("GamePlay")]
+	public float DayRoundLength = 10;
+	public float NightRoundLength = 5;
+	public float RoundLength;
 	public GameObject Zoo;
 
-	// Last Switch
+	// Round Length
 	private float CurrentTime = 0;
+
+	// Last Switch
+	private float LastRoundSwitchTime = 0;
 
 	// Current Time Mode
 	private TIMEMODE CurrentMode;
 
+	// How many killers are in the level
 	private int NumberOfKillers;
-
-	// Accessors
-	private Image BackgroundImage;
 
 	void Start ()
 	{
 		// Store current time
-		CurrentTime = Time.timeSinceLevelLoad;
-
-		// Access the background sprite
-		BackgroundImage = BackgroundGUI.GetComponent<Image>();
+		LastRoundSwitchTime = Time.timeSinceLevelLoad;
 
 		// Create our initial crowd
 		Zoo.GetComponent<ZooManager>().GenerateCrowd();
+
+		// Define the day round length
+		RoundLength = DayRoundLength;
 	}
-	
 
 	void Update ()
 	{
+		// Elapsed time since round began
+		CurrentTime = Time.timeSinceLevelLoad - LastRoundSwitchTime;
+
 		// Check if enough time has lapsed to switch
-		if( Time.timeSinceLevelLoad - CurrentTime > RoundLength)
+		if( CurrentTime > RoundLength)
 		{
 			SwitchMode();
 		}
+
+		// Update Text
+		UpdateGUI ();
+
+		// Check if the game has met the game over requirements
+		CheckGameOver ();
+	}
+
+	private void UpdateGUI()
+	{
+		// Display how long is left on the 
+		TextGUI.GetComponent<Text> ().text = "Time Left : " + (int)(RoundLength - CurrentTime);
 	}
 
 	private void SwitchMode()
@@ -61,7 +77,10 @@ public class LevelManager : MonoBehaviour
 			CurrentMode = TIMEMODE.NIGHT;
 
 			// Set GameBackground to NightImage
-			BackgroundImage.sprite = NightBackground;
+			BackgroundGUI.GetComponent<Image>().sprite = NightBackground;
+
+			// Define the night round length
+			RoundLength = NightRoundLength;
 		}
 		else
 		{
@@ -69,10 +88,28 @@ public class LevelManager : MonoBehaviour
 			CurrentMode = TIMEMODE.DAY;
 			
 			// Set GameBackground to NightImage
-			BackgroundImage.sprite = DayBackground;
+			BackgroundGUI.GetComponent<Image>().sprite = DayBackground;
+
+			// Select a new killer
+			Zoo.GetComponent<ZooManager>().ChooseVictim();
+
+			// Define the night round length
+			RoundLength = DayRoundLength;
 		}
 
 		// Store current time we are on
-		CurrentTime = Time.timeSinceLevelLoad;
+		LastRoundSwitchTime = Time.timeSinceLevelLoad;
+	}
+
+	private void CheckGameOver()
+	{
+		if(CurrentMode == TIMEMODE.NIGHT)
+		{
+			// Check if there are more killers than innocents
+		}
+		else if(CurrentMode == TIMEMODE.DAY)
+		{
+			// No killers in crowd
+		}
 	}
 }
