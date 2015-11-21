@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 
 public class LevelManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class LevelManager : MonoBehaviour
 	[Header("GUI - Timer")]
 	public GameObject TextGUI;
 	public GameObject BarGUI;
+    public GameObject ClueGUI;
 
 	[Header("GUI - Misc")]
 	public GameObject StatsGUI;
@@ -22,7 +24,7 @@ public class LevelManager : MonoBehaviour
 	public float DayRoundLength = 10;
 	public float NightRoundLength = 5;
 	public float RoundLength;
-	public GameObject Zoo;
+	public ZooManager Zoo;
 
 	[Header("Statistics")]
 	private int StatRounds = 0;
@@ -54,6 +56,8 @@ public class LevelManager : MonoBehaviour
 	
 		// Define the day round length
 		RoundLength = DayRoundLength;
+
+	    Zoo = GetComponent<ZooManager>();
 	}
 
 	void Update ()
@@ -86,7 +90,18 @@ public class LevelManager : MonoBehaviour
 		}
 	}
 
-	private void UpdateGUI()
+    private void DisplayClues()
+    {
+        bool isDay = CurrentMode == TIMEMODE.DAY;
+        var clues = Zoo.GetClues(isDay);
+
+        // Set the text for UI
+        string clueList = clues.Aggregate((i, j) => i + "\n" + j);
+
+        ClueGUI.GetComponent<Text>().text = clueList;
+    }
+
+    private void UpdateGUI()
 	{
 		// Display how long is left on the 
 		TextGUI.GetComponent<Text> ().text = "Time Left : " + (int)(RoundLength - CurrentTime);
@@ -100,6 +115,9 @@ public class LevelManager : MonoBehaviour
 		// Update the bar
 		Vector2 Size = new Vector2 (25, 200 - (200 * (CurrentTime / DayLength)));
 		BarGUI.GetComponent<Image> ().rectTransform.sizeDelta = Size;
+
+        // update the clues
+        DisplayClues();
 	}
 
 	private void SwitchMode()
@@ -144,7 +162,8 @@ public class LevelManager : MonoBehaviour
 		}
 		else if(CurrentMode == TIMEMODE.DAY)
 		{
-			// No killers in crowd
+		    if (!Zoo.IsKillerStillWithUs())
+		        IsGameOver = true;
 		}
 	}
 

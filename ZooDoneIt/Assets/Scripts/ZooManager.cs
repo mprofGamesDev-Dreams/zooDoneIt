@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts;
 
 public class ZooManager : MonoBehaviour
 {
@@ -35,12 +36,13 @@ public class ZooManager : MonoBehaviour
 	// Names
 	private string KillerName;
 	private string VictimName;
-
+    private ClueManager clueManager;
 	void Start()
 	{
 		// Creat the array to store the crowd
 		CrowdObj = new List<GameObject> ();
-		
+		clueManager = new ClueManager();
+
 		int x = 0;
 		int y = 0;
 		int index = 0;
@@ -112,4 +114,16 @@ public class ZooManager : MonoBehaviour
 		// Set the type of the animal
 		CrowdObj[index].GetComponent<Animal> ().SetAnimal (animalType);
 	}
+
+    public bool IsKillerStillWithUs()
+    {
+        return CrowdStr.Contains(KillerName);
+    }
+
+    public IList<string> GetClues(bool isDay)
+    {
+        return isDay
+            ? clueManager.GetNightActivity(CrowdStr.ToList(), KillerName)
+            : clueManager.GetDayActivity(CrowdStr.ToList(), KillerName);
+    }
 }
