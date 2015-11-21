@@ -44,23 +44,6 @@ public class ZooManager : MonoBehaviour
 		OutputListToDebug ();
 	}
 
-	public IList<string> GetNightActivityText(string killer, IList<string> zoo)
-	{
-		zoo.Shuffle();	
-
-		IList<string> nightCopy = new List<string>(Resources.TwoPersonNightActivities);
-		nightCopy.Shuffle();
-		
-		IList<string> activities = new List<string>();	
-		for(int i=0; i<zoo.Count-1; i++)
-		{
-			activities.Add(String.Format(nightCopy[i], zoo[i], zoo[i+1]));
-		}
-		activities.Add(String.Format(nightCopy[zoo.Count], zoo[zoo.Count-1], zoo[0]));
-		
-		return activities;
-	}
-
 	public void ChooseKiller()
 	{
 		int Index;
